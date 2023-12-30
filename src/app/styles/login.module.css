@@ -1,0 +1,36 @@
+.main {
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+  
+  .main form {
+    width: 65%;
+    min-width: 100px;
+    text-align: center;
+  }
+  
+  .main form button {
+    background-color: greenyellow;
+    color: black;
+  }
+  
+  .main label {
+    color: white !important;
+    font-size: 4vh;
+    margin-bottom: 10px;
+  }
+  
+  .main p {
+    color: white !important;
+    font-size: 4vh;
+    margin-bottom: 10px;
+  }
+  
+  .text_base {
+    color: white !important;
+    font-size: 4vh;
+    margin-bottom: 10px;
+    text-align: center;
+  }
