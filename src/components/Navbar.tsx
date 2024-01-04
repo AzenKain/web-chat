@@ -16,7 +16,11 @@ function Header() {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
               <Nav.Link href="/">Trang chủ</Nav.Link>
-              <Nav.Link href="/admin">Quản trị</Nav.Link>
+              <Nav.Link href="/Friends">Danh sách bạn bè</Nav.Link>
+              <Nav.Link href="/Search">Tìm kiếm</Nav.Link>
+              <Nav.Link href="/Login">Login</Nav.Link>
+              <Nav.Link href="/Signup">SignUp</Nav.Link>
+              <Nav.Link href="/Search">Logout</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>

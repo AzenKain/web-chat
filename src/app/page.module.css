@@ -80,6 +80,7 @@
   overflow: hidden;
   border-radius: 50%;
   margin-right: 10px;
+
 }
 
 .circularImage img {
@@ -91,4 +92,52 @@
 .userName {
   flex-grow: 1;
   color: #fff;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+
+.megs-container {
+  width: 100%;
+  margin-bottom: 20px
+}
+
+.message-right {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  justify-content: flex-end !important;
+}
+
+.message-left {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  justify-content: flex-start !important;
+}
+
+.buttonInput {
+  cursor: pointer; 
+  border-radius: 15%;
+  border-style: solid;
+  border-color: #fff;
+}
+
+.buttonInput input[type="file"]{
+  display: none
+
+}
+
+.buttonInput label{
+  height: 60px;
+  width: 60px;
+  border: 1px;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.center-container {
+  justify-content: center !important;
+  text-align: center;
+  align-items: center;
 }

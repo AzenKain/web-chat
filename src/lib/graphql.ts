@@ -1,5 +1,5 @@
 import axios from "axios";
-import { LoginDto, SignUpDto } from './dto';
+import { LoginDto, SignUpDto, RoomchatDto } from './dto';
 import { jwtDecode } from "jwt-decode";
 import "core-js/stable/atob";
 
@@ -69,7 +69,7 @@ export async function SignupAsync(dto: SignUpDto) {
     const endpoint = 'http://103.144.87.14:3434/graphql';
 
     const SIGNUP_MUTATION = `
-            mutation SignUp($email: String!, $password: String!, $name: String!, $birthday: Date, $phoneNumber: String) {
+            mutation SignUp($email: String!, $password: String!, $name: String!, $birthday: DateTime, $phoneNumber: Float) {
                 SignUp(userDto: {
                     email: $email
                     password: $password
@@ -221,13 +221,14 @@ export async function updateAccessTokenAsync(userId: string, refreshToken: strin
     }
 }
 
-export async function getAllRoomchatAsync(userId: string, accessToken: string): Promise<[any]>{
+export async function getAllRoomchatAsync(userId: string, accessToken: string): Promise<[any]> {
     const endpoint = 'http://103.144.87.14:3434/graphql';
 
     const GET_USER_QUERY = `
-    query GetAllRomchatByUserId {
-        getAllRomchatByUserId(id: "1cc63cac-057d-5271-8c92-36c43d4ae4cd") {
+    query GetAllRomchatByUserId ($userId: String!) {
+        getAllRomchatByUserId(id: $userId) {
             isDisplay
+            isSingle
             ownerUserId
             description
             imgDisplay
@@ -288,25 +289,21 @@ export async function getAllRoomchatAsync(userId: string, accessToken: string): 
 }
 
 
-export async function getRoomchatAsync(id: string, accessToken: string): Promise<{}>{
+export async function getRoomchatAsync(id: string, accessToken: string): Promise<{}> {
     const endpoint = 'http://103.144.87.14:3434/graphql';
 
     const GET_USER_QUERY = `
-    query GetAllRomchatByUserId {
-        getAllRomchatByUserId(id: "1cc63cac-057d-5271-8c92-36c43d4ae4cd") {
+    query GetRomchatById ($roomchatId: String!) {
+        getRomchatById(roomchatId: $roomchatId) {
+            id
             isDisplay
             ownerUserId
             description
             imgDisplay
+            isSingle
             member
             created_at
             updated_at
-            memberOut {
-                memberId
-                messageCount
-                created_at
-                updated_at
-            }
             data {
                 id
                 userId
@@ -324,7 +321,12 @@ export async function getRoomchatAsync(id: string, accessToken: string): Promise
                     updated_at
                 }
             }
-            id
+            memberOut {
+                memberId
+                messageCount
+                created_at
+                updated_at
+            }
             title
         }
     }`;
@@ -340,14 +342,405 @@ export async function getRoomchatAsync(id: string, accessToken: string): Promise
             {
                 query: GET_USER_QUERY,
                 variables: {
-                    userId: id
+                    roomchatId: id
                 },
             },
             { headers: headers }
         );
         if (response.data.data == null) return response.data.data;
-        return response.data.data.getAllRomchatByUserId
+        return response.data.data.getRomchatById
 
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+
+
+export async function findFriendAsync(content: string, accessToken: string) {
+    const endpoint = 'http://103.144.87.14:3434/graphql';
+
+    const GET_USER_QUERY = `
+    query FindUser ($content: String!){
+        findUser(content: $content) {
+            id
+            email
+            friends
+            created_at
+            updated_at
+            detail {
+                name
+                nickName
+                birthday
+                age
+                description
+                phoneNumber
+                avatarUrl
+            }
+        }
+    }`;
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+    };
+
+    try {
+        const response = await axios.post(
+            endpoint,
+            {
+                query: GET_USER_QUERY,
+                variables: {
+                    content: content
+                },
+            },
+            { headers: headers }
+        );
+        if (response.data.data == null) return response.data.data;
+        return response.data.data.findUser
+
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+
+export async function addFriendAsync(userId: string, friendId: string, accessToken: string) {
+    const endpoint = 'http://103.144.87.14:3434/graphql';
+
+    const GET_USER_QUERY = `
+    mutation AddFriendUser ($userId: String!, $friendId: String!){
+        addFriendUser(
+            addFriend: {
+                userId: $userId
+                friendId: $friendId
+            }
+        ) {
+            id
+            receiveUserId
+            value
+            created_at
+            updated_at
+            createdUserId
+            isDisplay
+        }
+    }`;
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+    };
+
+    try {
+        const response = await axios.post(
+            endpoint,
+            {
+                query: GET_USER_QUERY,
+                variables: {
+                    userId: userId,
+                    friendId: friendId
+                },
+            },
+            { headers: headers }
+        );
+        if (response.data.data == null) return response.data.data;
+        return response.data.data.addFriendUser
+
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+export async function acceptFriendAsync(userId: string, friendId: string, accessToken: string) {
+    const endpoint = 'http://103.144.87.14:3434/graphql';
+
+    const GET_USER_QUERY = `
+    query AcceptFriendUser ($userId: String!, $friendId: String!) {
+        acceptFriendUser(
+            acceptFriend: {
+                userId: $userId
+                friendId: $friendId
+            }
+        ){
+            id
+            createdUserId
+            receiveUserId
+            value
+            isDisplay
+            created_at
+            updated_at
+        }
+    }`;
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+    };
+
+    try {
+        const response = await axios.post(
+            endpoint,
+            {
+                query: GET_USER_QUERY,
+                variables: {
+                    userId: userId,
+                    friendId: friendId
+                },
+            },
+            { headers: headers }
+        );
+        if (response.data.data == null) return response.data.data;
+        return response.data.data.acceptFriendUser
+
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+export async function removeFriendAsync(userId: string, friendId: string, accessToken: string) {
+    const endpoint = 'http://103.144.87.14:3434/graphql';
+
+    const GET_USER_QUERY = `
+    mutation RemoveFriendUser ($userId: String!, $friendId: String!) {
+        removeFriendUser(removeFriend: {
+            userId: $userId
+            friendId: $friendId
+            }
+        ) {
+            id
+            createdUserId
+            receiveUserId
+            value
+            isDisplay
+            created_at
+            updated_at
+        }
+    }`;
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+    };
+
+    try {
+        const response = await axios.post(
+            endpoint,
+            {
+                query: GET_USER_QUERY,
+                variables: {
+                    userId: userId,
+                    friendId: friendId
+                },
+            },
+            { headers: headers }
+        );
+        if (response.data.data == null) return response.data.data;
+        return response.data.data.removeFriendUser
+
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+
+export async function createRoomchatAsync(dto : RoomchatDto, accessToken: string) {
+    const endpoint = 'http://103.144.87.14:3434/graphql';
+
+    const GET_USER_QUERY = `
+    mutation CreateRoomChat ($userId: String!, $member: [String!]!, $title: String!, $isSingle: Boolean!, $description: String, $imgDisplay: String) {
+        createRoomChat(
+            createRoom: {
+                userId: $userId
+                member: $member
+                title: $title
+                isSingle: $isSingle 
+                description: $description
+                imgDisplay: $imgDisplay
+            }
+        ) {
+            id
+            ownerUserId
+            member
+            created_at
+            updated_at
+            memberOut {
+                memberId
+                messageCount
+                created_at
+                updated_at
+            }
+            description
+            imgDisplay
+            isDisplay
+            isSingle
+            title
+            data {
+                id
+                userId
+                isDisplay
+                content
+                fileUrl
+                created_at
+                updated_at
+            }
+        }
+    }`;
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+    };
+
+    try {
+        const response = await axios.post(
+            endpoint,
+            {
+                query: GET_USER_QUERY,
+                variables: {
+                    userId: dto.userId,
+                    member: dto.member,
+                    title: dto.title,
+                    isSingle: dto.isSingle,
+                    description: dto.description,
+                    imgDisplay: dto.imgDisplay,
+                },
+            },
+            { headers: headers }
+        );
+        if (response.data.data == null) return response.data.data;
+        return response.data.data.createRoomChat
+
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+
+export async function removeRoomchatAsync(userId: string, roomchatId: string, accessToken: string) {
+    const endpoint = 'http://103.144.87.14:3434/graphql';
+
+    const GET_USER_QUERY = `
+    mutation RemoveRoomChat ($userId: String!, $roomchatId: String!) {
+        removeRoomChat( removeRoomChat: { 
+            userId: $userId
+            roomchatId: $roomchatId
+            }
+        ) {
+            data
+        }
+    }`;
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+    };
+
+    try {
+        const response = await axios.post(
+            endpoint,
+            {
+                query: GET_USER_QUERY,
+                variables: {
+                    userId: userId,
+                    roomchatId: roomchatId
+                },
+            },
+            { headers: headers }
+        );
+        if (response.data.data == null) return response.data.data;
+        return response.data.data.removeRoomChat
+
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+
+export async function removeMessageAsync(userId: string, roomchatId: string, messageId: string, accessToken: string) {
+    const endpoint = 'http://103.144.87.14:3434/graphql';
+
+    const GET_USER_QUERY = `
+    mutation RemoveMessageRoomchat ($userId: String!, $roomchatId: String!, $messageId: String!) {
+        removeMessageRoomchat(
+            removeMessage: {
+                roomchatId: $roomchatId
+                userId: $userId
+                messageId: $messageId
+            }
+        ) {
+            data
+        }
+    }`;
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+    };
+
+    try {
+        const response = await axios.post(
+            endpoint,
+            {
+                query: GET_USER_QUERY,
+                variables: {
+                    userId: userId,
+                    roomchatId: roomchatId,
+                    messageId: messageId
+                },
+            },
+            { headers: headers }
+        );
+        if (response.data.data == null) return response.data.data;
+        return response.data.data.removeMessageRoomchat
+
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+
+export async function getFriendRequestAsync(userId: string, accessToken: string) {
+    const endpoint = 'http://103.144.87.14:3434/graphql';
+
+    const GET_USER_QUERY = `
+    query GetFriendRequest ($userId: String!) {
+        getFriendRequest(id: $userId) {
+            id
+            createdUserId
+            receiveUserId
+            value
+            isDisplay
+            created_at
+            updated_at
+        }
+    }`;
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+    };
+
+    try {
+        const response = await axios.post(
+            endpoint,
+            {
+                query: GET_USER_QUERY,
+                variables: {
+                    userId: userId,
+                },
+            },
+            { headers: headers }
+        );
+        if (response.data.data == null) return response.data.data;
+        return response.data.data.getFriendRequest
     } catch (error) {
         console.error('Error:', error);
         throw error;

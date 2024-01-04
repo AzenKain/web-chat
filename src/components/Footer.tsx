@@ -13,7 +13,7 @@ function Footer() {
                             <ul>
                                 <li><img src='/icon.jpg' alt="HTML5 Icon" width="60" height="60" /></li>
                                 <li><a href="/">Trang chủ</a></li>
-                                <li><a href="/admin">Quản trị</a></li>
+                                {/* <li><a href="/admin">Quản trị</a></li> */}
                             </ul>
                         </div>
                     </Col>
